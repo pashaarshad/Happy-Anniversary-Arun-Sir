@@ -320,7 +320,7 @@ function createPhotoSparkles() {
         }, 2000);
     }
 }
-
+playMusic();
 // Music control functions
 function playMusic() {
     if (!musicPlaying) {
@@ -332,8 +332,11 @@ function playMusic() {
         musicIcon.textContent = '🎵';
     }
 }
-toggleMusic();
 function toggleMusic() {
+     backgroundMusic.volume = 1.0; // Full volume
+        backgroundMusic.play();
+        musicIcon.textContent = '🎵';
+        musicPlaying = true;
     if (musicPlaying) {
         backgroundMusic.pause();
         musicIcon.textContent = '🔇';
