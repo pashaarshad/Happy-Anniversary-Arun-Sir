@@ -38,30 +38,75 @@ function initializeElements() {
     sparkles = document.getElementById('sparkles');
     floatingHearts = document.getElementById('floatingHearts');
     clickButton = document.getElementById('clickButton');
+    
+    // Try to start music immediately when DOM elements are initialized
+    if (backgroundMusic) {
+        backgroundMusic.volume = 1.0;
+        backgroundMusic.play().then(() => {
+            console.log('Music started during DOM initialization!');
+            window.musicPlaying = true;
+            if (musicIcon) musicIcon.textContent = '🎵';
+        }).catch(e => {
+            console.log('Music autoplay blocked, will retry on load event');
+        });
+    }
 }
+
+// Try to start music as soon as DOM is ready (even before images load)
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM Content Loaded - trying to start music');
+    const audio = document.getElementById('backgroundMusic');
+    if (audio) {
+        audio.volume = 1.0;
+        audio.play().then(() => {
+            console.log('Music started on DOMContentLoaded!');
+            window.musicPlaying = true;
+            const icon = document.getElementById('musicIcon');
+            if (icon) icon.textContent = '🎵';
+        }).catch(e => {
+            console.log('Music autoplay blocked on DOMContentLoaded');
+            // Try multiple times
+            setTimeout(() => {
+                if (!window.musicPlaying) {
+                    audio.play().catch(err => console.log('Retry 1 failed:', err));
+                }
+            }, 100);
+            
+            setTimeout(() => {
+                if (!window.musicPlaying) {
+                    audio.play().catch(err => console.log('Retry 2 failed:', err));
+                }
+            }, 500);
+            
+            setTimeout(() => {
+                if (!window.musicPlaying) {
+                    audio.play().catch(err => console.log('Retry 3 failed:', err));
+                }
+            }, 1000);
+        });
+    }
+});
 
 // Initialize when page loads
 window.addEventListener('load', () => {
     initializeElements();
     
+    // Start music IMMEDIATELY when page loads - no delays!
+    if (backgroundMusic) {
+        backgroundMusic.volume = 1.0; // Full volume
+        backgroundMusic.play().then(() => {
+            console.log('Auto-play music started immediately!');
+            window.musicPlaying = true;
+            if (musicIcon) musicIcon.textContent = '🎵';
+        }).catch(e => {
+            console.log('Auto-play prevented by browser, will play on user interaction');
+        });
+    }
+    
     setTimeout(() => {
         if (loading) loading.classList.add('hidden');
         createFloatingHearts();
         startHeartAnimation();
-        
-        // Auto-play music after 3 seconds with full volume
-        setTimeout(() => {
-            if (backgroundMusic) {
-                backgroundMusic.volume = 1.0; // Full volume
-                backgroundMusic.play().then(() => {
-                    console.log('Auto-play music started!');
-                    window.musicPlaying = true;
-                    if (musicIcon) musicIcon.textContent = '🎵';
-                }).catch(e => {
-                    console.log('Auto-play prevented by browser, will play on user interaction');
-                });
-            }
-        }, 3000);
     }, 1000);
 });
 
@@ -320,32 +365,67 @@ function createPhotoSparkles() {
         }, 2000);
     }
 }
-playMusic();
 // Music control functions
 function playMusic() {
-    if (!musicPlaying) {
-        backgroundMusic.volume = 1.0; // Full volume
-        backgroundMusic.play().catch(e => {
+    const audio = document.getElementById('backgroundMusic');
+    if (audio && !window.musicPlaying) {
+        audio.volume = 1.0; // Full volume
+        audio.play().then(() => {
+            console.log('Music started successfully!');
+            window.musicPlaying = true;
+            const icon = document.getElementById('musicIcon');
+            if (icon) icon.textContent = '🎵';
+        }).catch(e => {
             console.log('Music autoplay prevented by browser');
+            // Try again after a short delay
+            setTimeout(() => {
+                if (!window.musicPlaying) {
+                    audio.play().catch(err => {
+                        console.log('Music retry failed:', err);
+                    });
+                }
+            }, 100);
         });
-        musicPlaying = true;
-        musicIcon.textContent = '🎵';
     }
 }
+
+// Try to play music immediately when the script loads
+setTimeout(() => {
+    playMusic();
+}, 50);
+
+// Try again after a short delay
+setTimeout(() => {
+    if (!window.musicPlaying) {
+        playMusic();
+    }
+}, 200);
+
+// Try once more after DOM is more likely to be ready
+setTimeout(() => {
+    if (!window.musicPlaying) {
+        playMusic();
+    }
+}, 500);
+
 function toggleMusic() {
-     backgroundMusic.volume = 1.0; // Full volume
-        backgroundMusic.play();
-        musicIcon.textContent = '🎵';
-        musicPlaying = true;
-    if (musicPlaying) {
-        backgroundMusic.pause();
-        musicIcon.textContent = '🔇';
-        musicPlaying = false;
+    const audio = document.getElementById('backgroundMusic');
+    if (!audio) return;
+    
+    if (window.musicPlaying) {
+        audio.pause();
+        const icon = document.getElementById('musicIcon');
+        if (icon) icon.textContent = '🔇';
+        window.musicPlaying = false;
     } else {
-        backgroundMusic.volume = 1.0; // Full volume
-        backgroundMusic.play();
-        musicIcon.textContent = '🎵';
-        musicPlaying = true;
+        audio.volume = 1.0; // Full volume
+        audio.play().then(() => {
+            const icon = document.getElementById('musicIcon');
+            if (icon) icon.textContent = '🎵';
+            window.musicPlaying = true;
+        }).catch(e => {
+            console.log('Music play failed:', e);
+        });
     }
 }
 
@@ -371,8 +451,26 @@ function createClickEffect(x, y) {
 
 // Event Listeners
 document.addEventListener('click', (e) => {
+    // Try to start music on any click if not already playing
+    if (!window.musicPlaying) {
+        playMusic();
+    }
+    
     if (e.target !== clickButton && !envelopeContainer.contains(e.target)) {
         createClickEffect(e.clientX, e.clientY);
+    }
+});
+
+// Also try to start music on any interaction
+document.addEventListener('touchstart', () => {
+    if (!window.musicPlaying) {
+        playMusic();
+    }
+});
+
+document.addEventListener('keydown', () => {
+    if (!window.musicPlaying) {
+        playMusic();
     }
 });
 
