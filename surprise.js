@@ -34,20 +34,38 @@ function initializeElements() {
     caption2 = document.getElementById('caption2');
     musicControl = document.getElementById('musicControl');
     musicIcon = document.getElementById('musicIcon');
-    backgroundMusic = document.getElementById('backgroundMusic');
+    backgroundMusic = document.getElementById('backgroundMusic1'); // Use audio1 as primary
     sparkles = document.getElementById('sparkles');
     floatingHearts = document.getElementById('floatingHearts');
     clickButton = document.getElementById('clickButton');
     
     // Try to start music immediately when DOM elements are initialized
-    if (backgroundMusic) {
-        backgroundMusic.volume = 1.0;
-        backgroundMusic.play().then(() => {
-            console.log('Music started during DOM initialization!');
+    const audio1 = document.getElementById('backgroundMusic1');
+    const audio2 = document.getElementById('backgroundMusic2');
+    
+    if (audio1 && !window.musicPlaying) {
+        audio1.volume = 1.0;
+        audio1.play().then(() => {
+            console.log('Audio1 started during DOM initialization!');
             window.musicPlaying = true;
             if (musicIcon) musicIcon.textContent = '🎵';
+            
+            // When audio1 ends, start audio2 and loop it
+            audio1.addEventListener('ended', () => {
+                console.log('Audio1 ended, starting Audio2 loop...');
+                if (audio2) {
+                    audio2.volume = 1.0;
+                    audio2.loop = true;
+                    audio2.play().then(() => {
+                        console.log('Audio2 started looping successfully!');
+                    }).catch(e => {
+                        console.log('Audio2 play failed:', e);
+                    });
+                }
+            }, { once: true });
+            
         }).catch(e => {
-            console.log('Music autoplay blocked, will retry on load event');
+            console.log('Audio1 autoplay blocked, will retry on load event');
         });
     }
 }
@@ -55,32 +73,57 @@ function initializeElements() {
 // Try to start music as soon as DOM is ready (even before images load)
 document.addEventListener('DOMContentLoaded', () => {
     console.log('DOM Content Loaded - trying to start music');
-    const audio = document.getElementById('backgroundMusic');
-    if (audio) {
-        audio.volume = 1.0;
-        audio.play().then(() => {
-            console.log('Music started on DOMContentLoaded!');
+    const audio1 = document.getElementById('backgroundMusic1');
+    const audio2 = document.getElementById('backgroundMusic2');
+    
+    if (audio1) {
+        audio1.volume = 1.0;
+        audio1.play().then(() => {
+            console.log('Audio1 started on DOMContentLoaded!');
             window.musicPlaying = true;
             const icon = document.getElementById('musicIcon');
             if (icon) icon.textContent = '🎵';
+            
+            // When audio1 ends, start audio2 and loop it
+            audio1.addEventListener('ended', () => {
+                console.log('Audio1 ended, starting Audio2 loop...');
+                if (audio2) {
+                    audio2.volume = 1.0;
+                    audio2.loop = true;
+                    audio2.play().then(() => {
+                        console.log('Audio2 started looping after Audio1!');
+                    }).catch(e => {
+                        console.log('Audio2 play failed:', e);
+                    });
+                }
+            }, { once: true });
+            
         }).catch(e => {
-            console.log('Music autoplay blocked on DOMContentLoaded');
+            console.log('Audio1 autoplay blocked on DOMContentLoaded');
             // Try multiple times
             setTimeout(() => {
                 if (!window.musicPlaying) {
-                    audio.play().catch(err => console.log('Retry 1 failed:', err));
+                    audio1.play().catch(err => {
+                        console.log('Audio1 Retry 1 failed:', err);
+                        // If audio1 fails, try audio2
+                        if (audio2) {
+                            audio2.volume = 1.0;
+                            audio2.loop = true;
+                            audio2.play().catch(err2 => console.log('Audio2 fallback failed:', err2));
+                        }
+                    });
                 }
             }, 100);
             
             setTimeout(() => {
                 if (!window.musicPlaying) {
-                    audio.play().catch(err => console.log('Retry 2 failed:', err));
+                    audio1.play().catch(err => console.log('Audio1 Retry 2 failed:', err));
                 }
             }, 500);
             
             setTimeout(() => {
                 if (!window.musicPlaying) {
-                    audio.play().catch(err => console.log('Retry 3 failed:', err));
+                    audio1.play().catch(err => console.log('Audio1 Retry 3 failed:', err));
                 }
             }, 1000);
         });
@@ -92,14 +135,33 @@ window.addEventListener('load', () => {
     initializeElements();
     
     // Start music IMMEDIATELY when page loads - no delays!
-    if (backgroundMusic) {
-        backgroundMusic.volume = 1.0; // Full volume
-        backgroundMusic.play().then(() => {
-            console.log('Auto-play music started immediately!');
+    const audio1 = document.getElementById('backgroundMusic1');
+    const audio2 = document.getElementById('backgroundMusic2');
+    
+    if (audio1 && !window.musicPlaying) {
+        audio1.volume = 1.0; // Full volume
+        audio1.play().then(() => {
+            console.log('Audio1 started immediately on page load!');
             window.musicPlaying = true;
-            if (musicIcon) musicIcon.textContent = '🎵';
+            const icon = document.getElementById('musicIcon');
+            if (icon) icon.textContent = '🎵';
+            
+            // When audio1 ends, start audio2 and loop it
+            audio1.addEventListener('ended', () => {
+                console.log('Audio1 ended, starting Audio2 loop...');
+                if (audio2) {
+                    audio2.volume = 1.0;
+                    audio2.loop = true;
+                    audio2.play().then(() => {
+                        console.log('Audio2 started looping successfully!');
+                    }).catch(e => {
+                        console.log('Audio2 play failed:', e);
+                    });
+                }
+            }, { once: true });
+            
         }).catch(e => {
-            console.log('Auto-play prevented by browser, will play on user interaction');
+            console.log('Audio1 auto-play prevented by browser, will play on user interaction');
         });
     }
     
@@ -367,21 +429,46 @@ function createPhotoSparkles() {
 }
 // Music control functions
 function playMusic() {
-    const audio = document.getElementById('backgroundMusic');
-    if (audio && !window.musicPlaying) {
-        audio.volume = 1.0; // Full volume
-        audio.play().then(() => {
-            console.log('Music started successfully!');
+    const audio1 = document.getElementById('backgroundMusic1');
+    const audio2 = document.getElementById('backgroundMusic2');
+    
+    if (audio1 && !window.musicPlaying) {
+        audio1.volume = 1.0; // Full volume
+        audio1.play().then(() => {
+            console.log('Audio1 started successfully!');
             window.musicPlaying = true;
             const icon = document.getElementById('musicIcon');
             if (icon) icon.textContent = '🎵';
+            
+            // When audio1 ends, start audio2 and loop it
+            audio1.addEventListener('ended', () => {
+                console.log('Audio1 ended, starting Audio2 loop...');
+                if (audio2) {
+                    audio2.volume = 1.0;
+                    audio2.loop = true; // Set loop to true
+                    audio2.play().then(() => {
+                        console.log('Audio2 started looping successfully!');
+                    }).catch(e => {
+                        console.log('Audio2 play failed:', e);
+                    });
+                }
+            }, { once: true });
+            
         }).catch(e => {
-            console.log('Music autoplay prevented by browser');
+            console.log('Audio1 autoplay prevented by browser');
             // Try again after a short delay
             setTimeout(() => {
                 if (!window.musicPlaying) {
-                    audio.play().catch(err => {
-                        console.log('Music retry failed:', err);
+                    audio1.play().catch(err => {
+                        console.log('Audio1 retry failed:', err);
+                        // If audio1 fails, try audio2 directly
+                        if (audio2) {
+                            audio2.volume = 1.0;
+                            audio2.loop = true;
+                            audio2.play().catch(err2 => {
+                                console.log('Audio2 fallback failed:', err2);
+                            });
+                        }
                     });
                 }
             }, 100);
@@ -409,23 +496,42 @@ setTimeout(() => {
 }, 500);
 
 function toggleMusic() {
-    const audio = document.getElementById('backgroundMusic');
-    if (!audio) return;
+    const audio1 = document.getElementById('backgroundMusic1');
+    const audio2 = document.getElementById('backgroundMusic2');
     
     if (window.musicPlaying) {
-        audio.pause();
+        // Pause both audio files
+        if (audio1) audio1.pause();
+        if (audio2) audio2.pause();
+        
         const icon = document.getElementById('musicIcon');
         if (icon) icon.textContent = '🔇';
         window.musicPlaying = false;
     } else {
-        audio.volume = 1.0; // Full volume
-        audio.play().then(() => {
-            const icon = document.getElementById('musicIcon');
-            if (icon) icon.textContent = '🎵';
-            window.musicPlaying = true;
-        }).catch(e => {
-            console.log('Music play failed:', e);
-        });
+        // Resume music - check which one should be playing
+        if (audio1 && !audio1.ended) {
+            audio1.volume = 1.0;
+            audio1.play().then(() => {
+                const icon = document.getElementById('musicIcon');
+                if (icon) icon.textContent = '🎵';
+                window.musicPlaying = true;
+            }).catch(e => {
+                console.log('Audio1 resume failed:', e);
+            });
+        } else if (audio2) {
+            audio2.volume = 1.0;
+            audio2.loop = true;
+            audio2.play().then(() => {
+                const icon = document.getElementById('musicIcon');
+                if (icon) icon.textContent = '🎵';
+                window.musicPlaying = true;
+            }).catch(e => {
+                console.log('Audio2 resume failed:', e);
+            });
+        } else {
+            // Start from beginning
+            playMusic();
+        }
     }
 }
 
