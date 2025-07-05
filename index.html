@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💖 Happy Anniversary Arun Sir - A Message of Love</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;600;700&family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="surprise.css">
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div class="loading" id="loading">
+        <div class="loader-heart">💖</div>
+    </div>
+
+    <!-- Floating Hearts -->
+    <div class="floating-hearts" id="floatingHearts"></div>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Envelope Section -->
+        <div class="envelope-section" id="envelopeSection">
+            <h1 class="title">💖 Happy Anniversary, Arun Sir! 💖</h1>
+            <p class="subtitle">A special message just for you, dear Arun Sir...</p>
+            
+            <div class="envelope-container" id="envelopeContainer">
+                <svg class="envelope-svg" viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Envelope Body -->
+                    <rect x="20" y="50" width="160" height="80" rx="5" fill="#ffb3d6" stroke="#ff69b4" stroke-width="2"/>
+                    
+                    <!-- Envelope Flap -->
+                    <polygon class="envelope-flap" points="20,50 100,50 180,50 100,100" fill="#ff69b4" stroke="#ff1493" stroke-width="2"/>
+                    
+                    <!-- Heart Seal -->
+                    <circle cx="100" cy="75" r="15" fill="#ff1493"/>
+                    <text x="100" y="82" text-anchor="middle" fill="white" font-size="16">💝</text>
+                </svg>
+                
+                <!-- Click Button in Center -->
+                <div class="click-button" id="clickButton" onclick="handleClickButton()">
+                    CLICK
+                </div>
+                
+                <!-- Sparkles -->
+                <div class="sparkles" id="sparkles"></div>
+            </div>
+            
+            <p class="instruction-text">✨ Click the Button to Open Your Surprise ✨</p>
+        </div>
+
+        <!-- Photo Gallery -->
+        <div class="photo-gallery" id="photoGallery">
+            <div class="photo-container">
+                <img class="photo" id="photo1" src="img1.jpg" alt="Beautiful Memory 1">
+                <div class="photo-overlay">
+                    <div class="overlay-text">💕 Beautiful Memories Together 💕</div>
+                </div>
+                
+                <img class="photo" id="photo2" src="img2.jpg" alt="Beautiful Memory 2">
+                <div class="photo-overlay">
+                    <div class="overlay-text">💖 Forever in Our Hearts 💖</div>
+                </div>
+                
+                <div class="photo-caption" id="caption1">💕 Celebrating You, Arun Sir - A Journey of Love 💕</div>
+                <div class="photo-caption" id="caption2">💖 To Arun Sir - Every Moment is a Blessing 💖</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Music Control -->
+    <div class="music-control" id="musicControl">
+        <span class="music-icon" id="musicIcon">🎵</span>
+    </div>
+
+    <!-- Audio -->
+    <audio id="backgroundMusic" loop preload="auto">
+        <source src="audio.mp3" type="audio/mpeg">
+        <!-- Local audio file for Arun Sir's anniversary -->
+    </audio>
+
+    <script src="surprise.js"></script>
+    
+    <!-- Simple Click Handler -->
+    <script>
+        // Simple button click handler
+        function handleClickButton() {
+            console.log('Button clicked!');
+            
+            // Use the function from the JS file if available, but with different name
+            if (window.jsHandleClickButton && typeof window.jsHandleClickButton === 'function') {
+                window.jsHandleClickButton();
+            } else {
+                // Fallback implementation
+                console.log('Using fallback implementation');
+                
+                const clickButton = document.getElementById('clickButton');
+                const envelopeContainer = document.getElementById('envelopeContainer');
+                const envelopeSection = document.getElementById('envelopeSection');
+                const photoGallery = document.getElementById('photoGallery');
+                const musicControl = document.getElementById('musicControl');
+                const backgroundMusic = document.getElementById('backgroundMusic');
+                const musicIcon = document.getElementById('musicIcon');
+                
+                if (window.isOpened) return;
+                window.isOpened = true;
+                
+                // Add clicked animation
+                if (clickButton) clickButton.classList.add('clicked');
+                if (envelopeContainer) envelopeContainer.classList.add('opened');
+                
+                // Start music
+                if (backgroundMusic) {
+                    backgroundMusic.volume = 1.0;
+                    backgroundMusic.play().then(() => {
+                        console.log('Music started!');
+                        if (musicIcon) musicIcon.textContent = '🎵';
+                    }).catch(e => console.log('Music error:', e));
+                }
+                
+                // Show photos
+                setTimeout(() => {
+                    if (envelopeSection) envelopeSection.classList.add('hidden');
+                    if (photoGallery) photoGallery.classList.add('active');
+                    if (musicControl) musicControl.classList.add('visible');
+                    
+                    // Start photo slideshow
+                    startPhotoSlideshow();
+                }, 2000);
+            }
+        }
+        
+        // Simple photo slideshow function
+        function startPhotoSlideshow() {
+            const photo1 = document.getElementById('photo1');
+            const photo2 = document.getElementById('photo2');
+            const caption1 = document.getElementById('caption1');
+            const caption2 = document.getElementById('caption2');
+            
+            // Show first photo immediately
+            showPhoto(1);
+            
+            // Start interval for switching photos
+            setInterval(() => {
+                window.currentPhoto = window.currentPhoto === 1 ? 2 : 1;
+                showPhoto(window.currentPhoto);
+            }, 4000);
+        }
+        
+        // Show specific photo
+        function showPhoto(photoNumber) {
+            const photo1 = document.getElementById('photo1');
+            const photo2 = document.getElementById('photo2');
+            const caption1 = document.getElementById('caption1');
+            const caption2 = document.getElementById('caption2');
+            
+            // Hide all photos and captions
+            if (photo1) photo1.classList.remove('active');
+            if (photo2) photo2.classList.remove('active');
+            if (caption1) caption1.classList.remove('active');
+            if (caption2) caption2.classList.remove('active');
+            
+            // Show selected photo and caption
+            setTimeout(() => {
+                if (photoNumber === 1) {
+                    if (photo1) photo1.classList.add('active');
+                    setTimeout(() => {
+                        if (caption1) caption1.classList.add('active');
+                    }, 800);
+                } else {
+                    if (photo2) photo2.classList.add('active');
+                    setTimeout(() => {
+                        if (caption2) caption2.classList.add('active');
+                    }, 800);
+                }
+            }, 200);
+        }
+        
+        // Initialize variables
+        window.isOpened = false;
+        window.musicPlaying = false;
+        window.currentPhoto = 1;
+    </script>
+</body>
+</html>
