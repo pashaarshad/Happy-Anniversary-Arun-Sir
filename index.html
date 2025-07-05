@@ -520,7 +520,7 @@
             box-shadow: 0 20px 50px rgba(214, 51, 132, 0.4);
             border: 3px solid rgba(255, 105, 180, 0.6);
             z-index: 1000;
-            animation: messageAppear 6s ease-in-out forwards; /* Extended duration */
+            animation: messageAppear 15s ease-in-out forwards; /* Extended to 15 seconds */
             font-weight: 600;
         }
 
@@ -529,11 +529,11 @@
                 opacity: 0;
                 transform: translate(-50%, -50%) scale(0.3);
             }
-            15% {
+            10% {
                 opacity: 1;
                 transform: translate(-50%, -50%) scale(1.1);
             }
-            85% {
+            90% {
                 opacity: 1;
                 transform: translate(-50%, -50%) scale(1);
             }
@@ -709,12 +709,12 @@
     </div>
 
     <!-- Background Audio -->
-    <audio id="backgroundMusic1" preload="auto">
+    <audio id="backgroundMusic1" preload="auto" autoplay muted="false">
         <source src="audio1.mp3" type="audio/mpeg">
         Your browser does not support the audio element.
     </audio>
     
-    <audio id="backgroundMusic2" loop preload="auto">
+    <audio id="backgroundMusic2" loop preload="auto" muted="false">
         <source src="audio2.mp3" type="audio/mpeg">
         Your browser does not support the audio element.
     </audio>
@@ -765,6 +765,24 @@
 
         // Initialize when page loads
         window.addEventListener('load', () => {
+            // Start music immediately and aggressively
+            setTimeout(() => {
+                startMusicSequence();
+            }, 100);
+            
+            // Try multiple times to ensure audio starts
+            setTimeout(() => {
+                if (!musicPlaying) {
+                    startMusicSequence();
+                }
+            }, 500);
+            
+            setTimeout(() => {
+                if (!musicPlaying) {
+                    startMusicSequence();
+                }
+            }, 1000);
+            
             // Hide loading screen after 2 seconds
             setTimeout(() => {
                 loadingScreen.classList.add('hidden');
@@ -779,11 +797,6 @@
             // Show signature message after loading screen disappears
             setTimeout(() => {
                 signatureMessage.classList.add('visible');
-            }, 3000);
-            
-            // Auto-play music after 3 seconds (if allowed by browser)
-            setTimeout(() => {
-                tryAutoPlayMusic();
             }, 3000);
             
             // Start the 10-second timer after loading screen disappears
@@ -893,26 +906,46 @@
 
         // Start Music Sequence - Audio1 first, then Audio2 loop
         function startMusicSequence() {
-            if (backgroundMusic1) {
-                backgroundMusic1.volume = 0.8;
-                backgroundMusic1.play().then(() => {
-                    audio1Playing = true;
-                    musicPlaying = true;
-                    musicIcon.textContent = '🎵';
-                    console.log('Audio1 started successfully!');
-                    
-                    // When audio1 ends, start audio2
-                    backgroundMusic1.addEventListener('ended', () => {
-                        audio1Playing = false;
-                        startBackgroundMusic2();
+            if (backgroundMusic1 && !audio1Playing && !audio2Playing) {
+                backgroundMusic1.volume = 0.7;
+                backgroundMusic1.muted = false;
+                
+                // Force play with multiple attempts
+                const playAudio = () => {
+                    backgroundMusic1.play().then(() => {
+                        audio1Playing = true;
+                        musicPlaying = true;
+                        musicIcon.textContent = '🎵';
+                        console.log('Audio1 started successfully!');
+                        
+                        // When audio1 ends, start audio2
+                        backgroundMusic1.addEventListener('ended', () => {
+                            audio1Playing = false;
+                            startBackgroundMusic2();
+                        }, { once: true });
+                    }).catch(e => {
+                        console.log('Audio1 autoplay attempt failed:', e);
+                        // Try again after a short delay
+                        setTimeout(() => {
+                            if (!audio1Playing && !audio2Playing) {
+                                playAudio();
+                            }
+                        }, 200);
                     });
-                }).catch(e => {
-                    console.log('Audio1 autoplay prevented:', e);
-                    // Fallback to audio2
-                    startBackgroundMusic2();
-                });
-            } else {
-                startBackgroundMusic2();
+                };
+                
+                playAudio();
+                
+                // Fallback: start on any user interaction
+                const startOnInteraction = () => {
+                    if (!audio1Playing && !audio2Playing) {
+                        playAudio();
+                    }
+                };
+                
+                document.addEventListener('click', startOnInteraction, { once: true });
+                document.addEventListener('touchstart', startOnInteraction, { once: true });
+                document.addEventListener('keydown', startOnInteraction, { once: true });
             }
         }
 
