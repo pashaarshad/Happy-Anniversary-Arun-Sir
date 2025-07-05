@@ -332,7 +332,7 @@ function playMusic() {
         musicIcon.textContent = '🎵';
     }
 }
-
+toggleMusic();
 function toggleMusic() {
     if (musicPlaying) {
         backgroundMusic.pause();
